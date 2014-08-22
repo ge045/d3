@@ -1894,6 +1894,7 @@
       if (mimeType != null && !("accept" in headers)) headers["accept"] = mimeType + ",*/*";
       if (request.setRequestHeader) for (var name in headers) request.setRequestHeader(name, headers[name]);
       if (mimeType != null && request.overrideMimeType) request.overrideMimeType(mimeType);
+      request.responseType = "blob";
       if (responseType != null) request.responseType = responseType;
       if (callback != null) xhr.on("error", callback).on("load", function(request) {
         callback(null, request);
@@ -9211,6 +9212,15 @@
   d3.text = d3_xhrType(function(request) {
     return request.responseText;
   });
+  d3.image = function(url, callback) {
+    return d3_xhr(url, "image/png", d3_image, callback).responseType("arraybuffer");
+  };
+  function d3_image(request) {
+    console.log(this.mimeType());
+    console.log(this.responseType());
+    console.log(request);
+    return request.response;
+  }
   d3.json = function(url, callback) {
     return d3_xhr(url, "application/json", d3_json, callback);
   };

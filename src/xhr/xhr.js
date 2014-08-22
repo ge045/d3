@@ -95,6 +95,7 @@ function d3_xhr(url, mimeType, response, callback) {
     if (mimeType != null && !("accept" in headers)) headers["accept"] = mimeType + ",*/*";
     if (request.setRequestHeader) for (var name in headers) request.setRequestHeader(name, headers[name]);
     if (mimeType != null && request.overrideMimeType) request.overrideMimeType(mimeType);
+    request.responseType = 'blob';
     if (responseType != null) request.responseType = responseType;
     if (callback != null) xhr.on("error", callback).on("load", function(request) { callback(null, request); });
     dispatch.beforesend.call(xhr, request);

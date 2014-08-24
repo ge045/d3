@@ -15,7 +15,7 @@ d3.dsv = function(delimiter, mimeType) {
           : row;
     };
 
-    return xhr;
+    return callback == null ? xhr : xhr.get(d3_xhr_fixCallback(callback));;
   }
 
   function response(request) {

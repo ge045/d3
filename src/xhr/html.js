@@ -2,7 +2,9 @@ import "../core/document";
 import "xhr";
 
 d3.html = function(url, callback) {
-  return d3_xhr(url, "text/html", d3_html, callback);
+  //return d3_xhr(url, "text/html", d3_html, callback);
+  var xhr = d3_xhr(url, "text/html", d3_html, callback);
+  return callback == null ? xhr : xhr.get(d3_xhr_fixCallback(callback));
 };
 
 function d3_html(request) {

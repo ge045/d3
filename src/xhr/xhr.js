@@ -9,7 +9,10 @@ d3.xhr = d3_xhrType(d3_identity);
 function d3_xhrType(response) {
   return function(url, mimeType, callback) {
     if (arguments.length === 2 && typeof mimeType === "function") callback = mimeType, mimeType = null;
-    return d3_xhr(url, mimeType, response, callback);
+    
+    var xhr = d3_xhr(url, mimeType, response, callback);
+    return callback == null ? xhr : xhr.get(d3_xhr_fixCallback(callback));
+    //return d3_xhr(url, mimeType, response, callback);
   };
 }
 
@@ -95,7 +98,6 @@ function d3_xhr(url, mimeType, response, callback) {
     if (mimeType != null && !("accept" in headers)) headers["accept"] = mimeType + ",*/*";
     if (request.setRequestHeader) for (var name in headers) request.setRequestHeader(name, headers[name]);
     if (mimeType != null && request.overrideMimeType) request.overrideMimeType(mimeType);
-    request.responseType = 'blob';
     if (responseType != null) request.responseType = responseType;
     if (callback != null) xhr.on("error", callback).on("load", function(request) { callback(null, request); });
     dispatch.beforesend.call(xhr, request);
@@ -110,7 +112,8 @@ function d3_xhr(url, mimeType, response, callback) {
 
   d3.rebind(xhr, dispatch, "on");
 
-  return callback == null ? xhr : xhr.get(d3_xhr_fixCallback(callback));
+  //return callback == null ? xhr : xhr.get(d3_xhr_fixCallback(callback));
+  return xhr;
 };
 
 function d3_xhr_fixCallback(callback) {

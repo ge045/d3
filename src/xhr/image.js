@@ -1,10 +1,11 @@
-
+import "../core/document";
 import "xhr";
 
 d3.image = function(url, callback) {
-  return d3_xhr(url, 'image/png', d3_image, callback)
-            .responseType('arraybuffer');
+  var xhr = d3_xhr(url, 'image/png', d3_image2, callback)
+      .responseType('arraybuffer');
             //.responseType('blob');
+  return callback == null ? xhr : xhr.get(d3_xhr_fixCallback(callback));
 };
 
 function d3_image(request) {
@@ -17,6 +18,24 @@ function d3_image(request) {
   //return new Blob([request.response], {type : 'image/png'});
   return request.response;
 }
+
+function d3_image2(request) {
+    var img = d3_document.createElement('img');
+    img.onload = function(e) {
+      console.log(e)
+      window.URL.revokeObjectURL(img.src); // Clean up after yourself.
+    };
+    var blob = new Blob([request.response], {type : 'image/png'}); // the blob 
+    img.src = d3_window.URL.createObjectURL(blob);
+    return img;
+}
+
+d3.image2 = function(src, callback) {
+  var image = new Image;
+  image.src = src;
+  image.onerror = callback;
+  image.onload = function() { callback(null, image); };
+};
 
 
 /*

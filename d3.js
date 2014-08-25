@@ -1831,7 +1831,8 @@
     return function(url, mimeType, callback) {
       if (arguments.length === 2 && typeof mimeType === "function") callback = mimeType, 
       mimeType = null;
-      return d3_xhr(url, mimeType, response, callback);
+      var xhr = d3_xhr(url, mimeType, response, callback);
+      return callback == null ? xhr : xhr.get(d3_xhr_fixCallback(callback));
     };
   }
   function d3_xhr(url, mimeType, response, callback) {
@@ -1894,7 +1895,6 @@
       if (mimeType != null && !("accept" in headers)) headers["accept"] = mimeType + ",*/*";
       if (request.setRequestHeader) for (var name in headers) request.setRequestHeader(name, headers[name]);
       if (mimeType != null && request.overrideMimeType) request.overrideMimeType(mimeType);
-      request.responseType = "blob";
       if (responseType != null) request.responseType = responseType;
       if (callback != null) xhr.on("error", callback).on("load", function(request) {
         callback(null, request);
@@ -1908,7 +1908,7 @@
       return xhr;
     };
     d3.rebind(xhr, dispatch, "on");
-    return callback == null ? xhr : xhr.get(d3_xhr_fixCallback(callback));
+    return xhr;
   }
   function d3_xhr_fixCallback(callback) {
     return callback.length === 1 ? function(error, request) {
@@ -1923,7 +1923,7 @@
       xhr.row = function(_) {
         return arguments.length ? xhr.response((row = _) == null ? response : typedResponse(_)) : row;
       };
-      return xhr;
+      return callback == null ? xhr : xhr.get(d3_xhr_fixCallback(callback));
     }
     function response(request) {
       return dsv.parse(request.responseText);
@@ -9213,22 +9213,36 @@
     return request.responseText;
   });
   d3.image = function(url, callback) {
-    return d3_xhr(url, "image/png", d3_image, callback).responseType("arraybuffer");
+    var xhr = d3_xhr(url, "image/png", d3_image, callback).responseType("blob");
+    return callback == null ? xhr : xhr.get(d3_xhr_fixCallback(callback));
   };
   function d3_image(request) {
-    console.log(this.mimeType());
-    console.log(this.responseType());
-    console.log(request);
-    return request.response;
+    var image = new Image();
+    image.onload = function(e) {
+      console.log("revoke callback for " + image.src);
+      d3_window.URL.revokeObjectURL(image.src);
+    };
+    image.src = d3_window.URL.createObjectURL(request.response);
+    return image;
   }
+  d3.image2 = function(src, callback) {
+    var image = new Image();
+    image.src = src;
+    image.onerror = callback;
+    image.onload = function() {
+      callback(null, image);
+    };
+  };
   d3.json = function(url, callback) {
-    return d3_xhr(url, "application/json", d3_json, callback);
+    var xhr = d3_xhr(url, "application/json", d3_json, callback);
+    return callback == null ? xhr : xhr.get(d3_xhr_fixCallback(callback));
   };
   function d3_json(request) {
     return JSON.parse(request.responseText);
   }
   d3.html = function(url, callback) {
-    return d3_xhr(url, "text/html", d3_html, callback);
+    var xhr = d3_xhr(url, "text/html", d3_html, callback);
+    return callback == null ? xhr : xhr.get(d3_xhr_fixCallback(callback));
   };
   function d3_html(request) {
     var range = d3_document.createRange();

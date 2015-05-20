@@ -9491,9 +9491,9 @@
     var image = new Image();
     image.onload = function(e) {
       console.log("revoke callback for " + image.src);
-      d3_window.URL.revokeObjectURL(image.src);
+      window.URL.revokeObjectURL(image.src);
     };
-    image.src = d3_window.URL.createObjectURL(request.response);
+    image.src = window.URL.createObjectURL(request.response);
     return image;
   }
   d3.image2 = function(src, callback) {

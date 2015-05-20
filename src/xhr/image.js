@@ -12,9 +12,9 @@ function d3_image(request) { // TODO: fallback for old browser versions needed
   var image = new Image();
   image.onload = function(e) {
       console.log("revoke callback for "+image.src)
-      d3_window.URL.revokeObjectURL(image.src); // TODO: wrap this to handle various browser versions
+      window.URL.revokeObjectURL(image.src); // TODO: wrap this to handle various browser versions
   };
-  image.src = d3_window.URL.createObjectURL(request.response); // TODO: wrap this to handle various browser versions
+  image.src = window.URL.createObjectURL(request.response); // TODO: wrap this to handle various browser versions
   return image;
 }
 
